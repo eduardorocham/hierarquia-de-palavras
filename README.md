@@ -27,7 +27,7 @@ Este é um projeto de interface web desenvolvido com React, TypeScript, Tailwind
 
    ```bash
    git clone https://github.com/seu-usuario/hierarquia-de-palavras.git
-   cd hierarchy-builder
+   cd hierarquia-de-palavras
    ```
 
 2. **Instale as dependências:**
