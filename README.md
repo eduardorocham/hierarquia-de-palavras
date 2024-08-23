@@ -26,7 +26,7 @@ Este é um projeto de interface web desenvolvido com React, TypeScript, Tailwind
 1. **Clone o repositório:**
 
    ```bash
-   git clone https://github.com/seu-usuario/hierarchy-builder.git
+   git clone https://github.com/seu-usuario/hierarquia-de-palavras.git
    cd hierarchy-builder
    ```
 
@@ -71,3 +71,20 @@ Este é um projeto de interface web desenvolvido com React, TypeScript, Tailwind
   }
 }
 ```
+
+## Fluxo de Branches
+
+Este projeto utiliza duas branches principais: `development` e `main`.
+
+### `main`
+
+- A branch `main` é a branch principal do projeto.
+- Ela sempre contém a principal do código que pode ir à produção.
+- Nenhuma mudança deve ser feita diretamente na `main`.
+
+### `development`
+
+- A branch `development` é usada para o desenvolvimento ativo.
+- Todas as novas funcionalidades, correções de bugs ou melhorias devem ser desenvolvidas em branches individuais baseadas na `development`.
+- Após o desenvolvimento e testes completos, essas branches devem ser mescladas de volta na `develop`.
+- Depois que várias features e correções de bugs foram integradas e testadas na `develop`, uma nova versão principal pode ser mesclada para a `main`.
