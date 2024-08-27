@@ -17,7 +17,7 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   setHierarchy
 }) => {
   const [addingNodeChild, setAddingNodeChild] = useState(false);
-  const [addingList, setAddingList] = useState(false);
+  const [addingListItem, setAddingListItem] = useState(false);
   const [childRootKeyName, setChildRootKeyName] = useState('')
   const [listItem, setListItem] = useState('')
 
@@ -52,7 +52,7 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
       return node
     })
     setHierarchy(hierarchyUpdated)
-    setAddingList(false)
+    setAddingListItem(false)
     setListItem('')
   }
 
@@ -84,7 +84,7 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
           Adicionar nó filho
         </button>
         <button
-          onClick={() => setAddingList(true)}
+          onClick={() => setAddingListItem(true)}
           className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
         >
           Adicionar Item (Lista)
@@ -111,9 +111,15 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
           >
             Adicionar
           </button>
+          <button
+            onClick={() => setAddingNodeChild(false)}
+            className="ml-2  bg-red-500 text-white px-2 py-1 rounded"
+          >
+            Cancelar
+          </button>
         </div>
       }
-      {addingList &&
+      {addingListItem &&
         <div className='mt-4'>
           <input
             type="text"
@@ -127,6 +133,12 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
             className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
           >
             Adicionar Item
+          </button>
+          <button
+            onClick={() => setAddingListItem(false)}
+            className="ml-2  bg-red-500 text-white px-2 py-1 rounded"
+          >
+            Cancelar
           </button>
         </div>
       }
