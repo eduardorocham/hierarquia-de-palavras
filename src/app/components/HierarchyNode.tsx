@@ -2,34 +2,70 @@
 
 import React, { useState } from 'react';
 import { HierarchyNode as HierarchyNodeType } from '../types/HierarchyNode';
+import { removeNode } from '../utils/removeNode';
+import { replaceNodeInTree } from '../utils/replaceNodeInTree';
 
 interface HierarchyNodeProps {
   node: HierarchyNodeType;
-  addChild: (parent: HierarchyNodeType, type: 'object' | 'array') => void;
-  removeNode: (node: HierarchyNodeType) => void;
-  removeValue: (parent: HierarchyNodeType, index: number) => void;
+  hierarchy: HierarchyNodeType[]
+  setHierarchy: React.Dispatch<React.SetStateAction<HierarchyNodeType[]>>
 }
 
-const HierarchyNode: React.FC<HierarchyNodeProps> = ({ node, addChild, removeNode, removeValue }) => {
-  const [key, setKey] = useState(node.key);
-  const [values, setValues] = useState<string[]>(node.values || []);
+const HierarchyNode: React.FC<HierarchyNodeProps> = ({ 
+  node: thisNode,
+  hierarchy,
+  setHierarchy
+}) => {
+  const [addingNodeChild, setAddingNodeChild] = useState(false);
+  const [addingListItem, setAddingListItem] = useState(false);
+  const [childRootKeyName, setChildRootKeyName] = useState('')
+  const [listItem, setListItem] = useState('')
+
+  const [key, setKey] = useState(thisNode.key);
 
   const handleKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setKey(e.target.value);
-    node.key = e.target.value;
+    thisNode.key = e.target.value;
   };
 
-  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const newValues = [...values];
-    newValues[index] = e.target.value;
-    setValues(newValues);
-    node.values = newValues;
-  };
+  const addRootChild = () => {
+    thisNode.children.push({ key: childRootKeyName, children: [] })
+    const hierarchyUpdated = hierarchy.map(node => {
+      if (node.key === thisNode.key) {
+        return thisNode
+      }
 
-  const addValue = () => {
-    setValues([...values, '']);
-    node.values = [...values, ''];
-  };
+      return node
+    })
+    setHierarchy(hierarchyUpdated)
+    setAddingNodeChild(false)
+    setChildRootKeyName('')
+  }
+  
+  const addRootItemList = () => {
+    thisNode.children.push(listItem)
+    const hierarchyUpdated = hierarchy.map(node => {
+      if (node.key === thisNode.key) {
+        return thisNode
+      }
+
+      return node
+    })
+    setHierarchy(hierarchyUpdated)
+    setAddingListItem(false)
+    setListItem('')
+  }
+
+  const removeNodeItem = (nodeKeyToRemove: string) => {
+    const hierarchyUpdated = removeNode(hierarchy, nodeKeyToRemove);
+    setHierarchy(hierarchyUpdated)
+  }
+
+  const removeListItem = (node: HierarchyNodeType, itemToRemove: string) => {
+    node.children = node.children.filter(item => typeof item === 'string' && item !== itemToRemove);
+    const updatedTree = replaceNodeInTree(hierarchy, node)
+    setHierarchy(updatedTree)
+  }
 
   return (
     <div className="ml-4 mb-2">
@@ -42,64 +78,97 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({ node, addChild, removeNod
           className="border p-1 rounded"
         />
         <button
-          onClick={() => addChild(node, 'object')}
+          onClick={() => setAddingNodeChild(true)}
           className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
         >
-          Adicionar filho
+          Adicionar nó filho
         </button>
         <button
-          onClick={() => addChild(node, 'array')}
+          onClick={() => setAddingListItem(true)}
           className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
         >
-          Adicionar lista
+          Adicionar Item (Lista)
         </button>
         <button
-          onClick={() => removeNode(node)}
+          onClick={() => removeNodeItem(thisNode.key)}
           className="ml-2 bg-red-500 text-white px-2 py-1 rounded"
         >
           Remover
         </button>
       </div>
-
-      {node.type === 'array' && (
-        <div className="ml-4 mt-2">
-          {values.map((value, index) => (
-            <div key={index} className="flex items-center mt-1">
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => handleValueChange(e, index)}
-                placeholder="Digite um item"
-                className="border p-1 rounded"
-              />
-              <button
-                onClick={() => removeValue(node, index)}
-                className="ml-2 bg-red-500 text-white px-2 py-1 rounded"
-              >
-                Remover
-              </button>
-            </div>
-          ))}
+      {addingNodeChild &&
+        <div className='mt-4'>
+          <input
+            type="text"
+            placeholder="Digite uma categoria"
+            className="border p-1 rounded"
+            value={childRootKeyName}
+            onChange={(e) => setChildRootKeyName(e.target.value)}
+          />
           <button
-            onClick={addValue}
-            className="mt-2 bg-green-500 text-white px-2 py-1 rounded"
+            onClick={addRootChild}
+            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
+          >
+            Adicionar
+          </button>
+          <button
+            onClick={() => setAddingNodeChild(false)}
+            className="ml-2  bg-red-500 text-white px-2 py-1 rounded"
+          >
+            Cancelar
+          </button>
+        </div>
+      }
+      {addingListItem &&
+        <div className='mt-4'>
+          <input
+            type="text"
+            placeholder="Digite o nome do item"
+            className="border p-1 rounded"
+            value={listItem}
+            onChange={(e) => setListItem(e.target.value)}
+          />
+          <button
+            onClick={addRootItemList}
+            className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
           >
             Adicionar Item
           </button>
+          <button
+            onClick={() => setAddingListItem(false)}
+            className="ml-2  bg-red-500 text-white px-2 py-1 rounded"
+          >
+            Cancelar
+          </button>
         </div>
-      )}
+      }
 
-      {node.children && node.children.length > 0 && (
+      {thisNode.children && thisNode.children.length > 0 && (
         <div className="ml-4 mt-2">
-          {node.children.map((child, index) => (
-            <HierarchyNode
-              key={index}
-              node={child}
-              addChild={addChild}
-              removeNode={removeNode}
-              removeValue={removeValue}
-            />
-          ))}
+          {thisNode.children.map((child, index) => {
+            if (typeof child === 'object') {
+              return (
+                <HierarchyNode
+                  key={index}
+                  node={child}
+                  hierarchy={hierarchy}
+                  setHierarchy={setHierarchy}
+                />
+              )
+            } else if(typeof child == 'string') {
+              return (
+                <div key={child} className='flex justify-center items-center mt-2'>
+                  <li>{child}</li>
+                  <button
+                    onClick={() => removeListItem(thisNode, child)}
+                    className="ml-2 bg-red-500 text-white px-2 py-1 rounded"
+                  >
+                    Remover
+                  </button>
+                </div>
+              )
+            }
+          })}
         </div>
       )}
     </div>
