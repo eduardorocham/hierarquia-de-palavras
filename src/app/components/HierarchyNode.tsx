@@ -29,7 +29,7 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   };
 
   const addRootChild = () => {
-    thisNode.children.push({ key: childRootKeyName, children: [], parentKey: thisNode.key })
+    thisNode.children.push({ key: childRootKeyName, children: [] })
     const hierarchyUpdated = hierarchy.map(node => {
       if (node.key === thisNode.key) {
         return thisNode
@@ -62,7 +62,7 @@ const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   }
 
   const removeListItem = (node: HierarchyNodeType, itemToRemove: string) => {
-    node.children = node.children.filter(item => item !== itemToRemove);
+    node.children = node.children.filter(item => typeof item === 'string' && item !== itemToRemove);
     const updatedTree = replaceNodeInTree(hierarchy, node)
     setHierarchy(updatedTree)
   }
